@@ -1,0 +1,11 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Moovi\\": "src/"
+        }
+    },
+    "require": {
+        "guzzlehttp/guzzle": "^7.7",
+        "vlucas/phpdotenv": "^5.5"
+    }
+}
