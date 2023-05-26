@@ -5,7 +5,7 @@ namespace Moovi\Controllers;
 
 
 use Moovi\Models\Response;
-use Moovi\Endpoints\GetMovie;
+use Moovi\Endpoints\GetMovies;
 
 
 class EndpointHandler
@@ -20,8 +20,8 @@ class EndpointHandler
 	 */
 	public static function process( string $endpoint ): void
 	{
-		if( 'get_movie' === $endpoint ) {
-			$endpoint = new GetMovie();
+		if( 'get_movie' === $endpoint || 'get_movies' === $endpoint ) {
+			$endpoint = new GetMovies();
 			$res = new Response();
 			
 		} else {

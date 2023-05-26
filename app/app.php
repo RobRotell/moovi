@@ -26,9 +26,16 @@ final class MooviApp
 	 */
 	private function defineConstants(): void
 	{
+		define( 'APP_VERSION', '0.0.1' );
+
 		define( 'APP_DIR', __DIR__ );
 		define( 'APP_FILE', __FILE__ );
-		define( 'APP_VERSION', '0.0.1' );
+
+		// for storing raw DALL-E images
+		define( 'APP_IMG_DIR', APP_DIR . '/img' );
+
+		define( 'PUBLIC_SITE_DIR', dirname( APP_DIR ) . '/public' );
+		define( 'PUBLIC_SITE_URL', 'https://moovi.robr.app' );
 	}
 
 
@@ -54,7 +61,7 @@ final class MooviApp
 	 */
 	private function loadEnv(): void
 	{
-		$dotenv = \Dotenv\Dotenv::createImmutable( dirname( APP_DIR ) . '/config' );
+		$dotenv = \Dotenv\Dotenv::createImmutable( APP_DIR . '/config' );
 		$dotenv->load();
 	}
 
