@@ -1,0 +1,49 @@
+{
+	"name": "moovi-app",
+	"version": "0.0.1",
+	"description": "OpenAI-powered movie generator!",
+	"scripts": {
+		"lint": "eslint",
+		"build": "parcel build src/index.html",
+		"watch": "parcel src/index.html"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/RobRotell/moovi.git"
+	},
+	"author": "Rob Rotell",
+	"license": " GPL-3.0",
+	"bugs": {
+		"url": "https://github.com/RobRotell/moovi/issues"
+	},
+	"source": "src/index.html",
+	"targets": {
+		"default": {
+			"distDir": "../public",
+			"outputFormat": "global",
+			"context": "browser"
+		},
+		"app-js": {
+			"source": "./src/js/app.js",
+			"distDir": "../public/dist"
+		},
+		"app-css": {
+			"source": "./src/scss/app.scss",
+			"distDir": "../public/dist"
+		}
+	},
+	"homepage": "https://github.com/RobRotell/moovi#readme",
+	"dependencies": {
+		"alpinejs": "^3.12.1",
+		"axios": "^1.4.0",
+		"normalize.css": "^8.0.1"
+	},
+	"devDependencies": {
+		"@parcel/transformer-sass": "^2.9.0",
+		"buffer": "^6.0.3",
+		"eslint": "^8.41.0",
+		"eslint-config-airbnb-base": "^15.0.0",
+		"eslint-plugin-import": "^2.27.5",
+		"parcel": "^2.9.0"
+	}
+}
