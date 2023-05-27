@@ -21,7 +21,7 @@ final class Database
 	 * 
 	 * @return void
 	 */
-	private static function createConn(): void
+	private static function createPdo(): void
 	{
 		self::$conn = new PDO( 
 			sprintf( 'mysql:dbname=%s;host=localhost', $_ENV['DB_NAME'] ),
@@ -42,37 +42,14 @@ final class Database
 	 *
 	 * @return PDO Database connection
 	 */
-	private static function getConn(): PDO
+	public static function getPdo(): PDO
 	{
 		if( !isset( self::$conn ) || !( self::$conn instanceof PDO ) ) {
-			self::createConn();
+			self::createPdo();
 		}
 
 		return self::$conn;
 	}
 
-
-	/**
-	 * Perform SQL query
-	 *
-	 * @since	0.0.1
-	 *
-	 * @param string $sql Base SQL query
-	 * @param array $vars Variables to prepare
-	 * 
-	 * @return mixed Query results
-	 */
-	public static function query( string $sql, array $vars = [] ): mixed
-	{
-		$conn = self::getConn();
-
-		$statement = $conn->prepare( $sql );
-		
-		if( !empty( $vars ) ) {
-			$statement->execute( $vars );
-		}
-
-		return $statement->fetchAll();
-	}
 }
 

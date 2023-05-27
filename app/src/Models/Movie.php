@@ -3,8 +3,10 @@
 
 namespace Moovi\Models;
 
+
 use InvalidArgumentException;
 use Moovi\Controllers\Database;
+
 
 class Movie
 {
@@ -18,11 +20,8 @@ class Movie
 	private ?string $releaseYear;
 	
 	private ?string $imageUrl;
-	private ?string $imageUrlOrig;
 
-	private ?string $prompt;
-
-	private $meta = null;
+	private ?array $prompts;
 
 
 	/**
@@ -46,9 +45,7 @@ class Movie
 		$movie->date 			= $attrs['date'] ?? '';
 		$movie->releaseYear		= $attrs['release_year'] ?? '';
 		$movie->imageUrl 		= $attrs['image_url'] ?? '';
-		$movie->imageUrlOrig	= $attrs['image_url_orig'] ?? '';
-		$movie->prompt 			= $attrs['prompt'] ?? '';
-		$movie->meta 			= $attrs['meta'] ?? '';
+		$movie->prompts 		= json_decode( $attrs['prompts'] ?? '', true );
 
 		// check for required props
 		$missingProps = [];
@@ -85,12 +82,16 @@ class Movie
 	{
 		$id = abs( $id );
 
-		$result = Database::query(
-			'SELECT * FROM movies WHERE `id` = :id LIMIT 1',
+		$pdo = Database::getPdo();
+
+		$sql = $pdo->prepare( 'SELECT * FROM movies WHERE `id` = :id LIMIT 1' );
+		$sql->execute(
 			[
-				'id' => $id
+				'id' => $id,
 			]
 		);
+
+		$result = $sql->fetch();
 
 		if( empty( $result ) ) {
 			throw new InvalidArgumentException(
@@ -98,21 +99,16 @@ class Movie
 			);
 		}
 
-		// database will return an array; use first one
-		$result = (array)$result[0];
-
 		$movie = new self;
 
-		$movie->id 				= $result['id'];
-		$movie->title 			= $result['title'];
-		$movie->tagline 		= $result['tagline'];
-		$movie->director 		= $result['director'];
-		$movie->releaseYear		= $result['release_year'];
-		$movie->date 			= $result['date'];
-		$movie->imageUrl 		= $result['image_url'];
-		$movie->imageUrlOrig	= $result['image_url_orig'];
-		$movie->prompt 			= $result['prompt'];
-		$movie->meta 			= $result['meta'];
+		$movie->id 				= $result->id;
+		$movie->title 			= $result->title;
+		$movie->tagline 		= $result->tagline;
+		$movie->director 		= $result->director;
+		$movie->releaseYear		= $result->release_year;
+		$movie->date 			= $result->date;
+		$movie->imageUrl 		= $result->image_url;
+		$movie->prompts 		= json_decode( $result->prompts, true );
 
 		return $movie;
 	}	

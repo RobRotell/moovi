@@ -20,9 +20,9 @@ class EndpointHandler
 	 */
 	public static function process( string $endpoint ): void
 	{
-		if( 'get_movie' === $endpoint || 'get_movies' === $endpoint ) {
+		if( 'get-movie' === $endpoint || 'get-movies' === $endpoint ) {
 			$endpoint = new GetMovies();
-			$res = new Response();
+			$res = $endpoint->getResponse();
 			
 		} else {
 			$res = new Response( 

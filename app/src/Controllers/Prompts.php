@@ -3,10 +3,12 @@
 
 namespace Moovi\Controllers;
 
+
 use Moovi\Datasets\Characters;
 use Moovi\Datasets\Genres;
 use Moovi\Datasets\Plots;
 use Moovi\Datasets\Styles;
+
 
 final class Prompts
 {
@@ -51,6 +53,5 @@ final class Prompts
 			Plots::getRandomValue(),
 		);
 	}
-
 
 }

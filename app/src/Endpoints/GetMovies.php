@@ -38,5 +38,27 @@ class GetMovies
 		$this->movies = $movies;
 	}
 
+
+	/**
+	 * Get response for endpoint
+	 *
+	 * @since 0.0.1
+	 *
+	 * @return Response
+	 */
+	public function getResponse(): Response
+	{
+		$movies = array_map( function( $movie ) {
+			return $movie->package();
+		}, $this->movies );
+
+		return new Response(
+			200,
+			[
+				'movies' => $movies,
+			]
+		);
+	}
+
 }
 
