@@ -1,6 +1,4 @@
 import Alpine from 'alpinejs'
-import axios from 'axios';
-
 
 
 ( () => {
@@ -32,17 +30,26 @@ import axios from 'axios';
 		 * @return {void}
 		 */
 		init() {
-			axios
-				.get( 'https://moovi.robr.app/endpoint/get-movie' )
-				.then( res => {
-					const { data: { movies } } = res
+			const movie = this.fetchMovie()
+		},
 
-					if( !Array.isArray( movies ) || !movies.length ) {
-						this.showError( 'Oops! Couldn\'t load a movie!' )
-					} else {
-						this.displayMovie( movies[ Math.floor( Math.random() * movies.length ) ] )
-					}
-				})
+
+		/**
+		 * Fetch movies from backend
+		 *
+		 * @return {Promise}
+		 */
+		fetchMovie() {
+			return new Promise( ( resolve, reject ) => {
+				fetch( 'https://moovi.robr.app/endpoint/get-movie' )
+					.then( res => {
+						console.log( res )
+						return res.json()
+					})
+					.then( res => {
+						console.log( res )
+					})
+			})
 		},
 
 
@@ -80,4 +87,4 @@ import axios from 'axios';
 	Alpine.start()
 
 
-}) ()
+})()

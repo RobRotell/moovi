@@ -26,8 +26,8 @@ final class Prompts
 		$style 		= strtolower( Styles::getSkewedRandomValue( 'realistic', 5 ) );
 
 		return [
-			'title' 	=> sprintf( 'Create a movie title for a %s movie about %s', $genre, $scenario ),
-			'tagline' 	=> sprintf( 'Create a movie tagline for an %s movie about %s', $genre, $scenario ),
+			'title' 	=> sprintf( 'Create a %s movie title between three and seven words for a %s movie about %s', $style, $genre, $scenario ),
+			'tagline' 	=> sprintf( 'Create a %s movie tagline for an %s movie about %s', $style, $genre, $scenario ),
 			'poster' 	=> sprintf( 'Create a %s still image for a %s movie about %s', $style, $genre, $scenario ),
 			'__meta'	=> [
 				'genre' 	=> $genre,

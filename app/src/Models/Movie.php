@@ -6,7 +6,7 @@ namespace Moovi\Models;
 
 use InvalidArgumentException;
 use Moovi\Controllers\Database;
-
+use Moovi\Helpers;
 
 class Movie
 {
@@ -15,11 +15,12 @@ class Movie
 	private ?string $title;
 	private ?string $tagline;
 	private ?string $director;
+	private ?string $genre;
 	
 	private ?string $date;
 	private ?string $releaseYear;
 	
-	private ?string $imageUrl;
+	private ?array $imageUrls;
 
 	private ?array $prompts;
 
@@ -39,17 +40,18 @@ class Movie
 		$movie = new self;
 
 		$movie->id 				= $attrs['id'] ?? 0;
-		$movie->title 			= $attrs['title'] ?? '';
-		$movie->tagline 		= $attrs['tagline'] ?? '';
+		$movie->title 			= Helpers::stripLeadingTrailingQuotationMarks( $attrs['title'] ?? '' );
+		$movie->tagline 		= Helpers::stripLeadingTrailingQuotationMarks( $attrs['tagline'] ?? '' );
 		$movie->director 		= $attrs['director'] ?? '';
+		$movie->genre 			= $attrs['genre'] ?? '';
 		$movie->date 			= $attrs['date'] ?? '';
 		$movie->releaseYear		= $attrs['release_year'] ?? '';
-		$movie->imageUrl 		= $attrs['image_url'] ?? '';
+		$movie->imageUrls 		= json_decode( $attrs['image_urls'] ?? '', true );
 		$movie->prompts 		= json_decode( $attrs['prompts'] ?? '', true );
 
 		// check for required props
 		$missingProps = [];
-		foreach( [ 'title', 'tagline', 'imageUrl', 'director', 'releaseYear' ] as $prop ) {
+		foreach( [ 'title', 'tagline', 'imageUrls', 'director', 'releaseYear' ] as $prop ) {
 			if( !isset( $movie->{$prop} ) ) {
 				$missingProps[] = $prop;
 			}
@@ -102,12 +104,13 @@ class Movie
 		$movie = new self;
 
 		$movie->id 				= $result->id;
-		$movie->title 			= $result->title;
-		$movie->tagline 		= $result->tagline;
+		$movie->title 			= Helpers::stripLeadingTrailingQuotationMarks( $result->title );
+		$movie->tagline 		= Helpers::stripLeadingTrailingQuotationMarks( $result->tagline );
 		$movie->director 		= $result->director;
+		$movie->genre 			= $result->genre;
 		$movie->releaseYear		= $result->release_year;
 		$movie->date 			= $result->date;
-		$movie->imageUrl 		= $result->image_url;
+		$movie->imageUrls 		= json_decode( $result->image_urls, true );
 		$movie->prompts 		= json_decode( $result->prompts, true );
 
 		return $movie;
@@ -127,8 +130,9 @@ class Movie
 			'title' 	=> $this->title,
 			'tagline' 	=> $this->tagline,
 			'director' 	=> $this->director,
+			'genre'		=> $this->genre,
 			'year' 		=> $this->releaseYear,
-			'image' 	=> $this->imageUrl,
+			'image' 	=> $this->imageUrls,
 		];
 	}
 

@@ -4,17 +4,18 @@
 namespace Moovi\Endpoints;
 
 
-use DateTimeImmutable;
 use Exception;
 use Moovi\Abstracts\Endpoint;
 use Moovi\Controllers\MovieHandler;
+use Moovi\Helpers;
+use Moovi\Models\Movie;
 use Moovi\Models\Response;
 use Throwable;
 
 
-class GetMovie extends Endpoint
+class CreateMovie extends Endpoint
 {
-	public string $name = 'get-movie';
+	public string $name = 'create-movie';
 	
 
 	/**
@@ -28,23 +29,23 @@ class GetMovie extends Endpoint
 	public function __construct()
 	{
 		try {
-			// $date = new DateTimeImmutable( 'America/New_York' );
-			// $date = $date->format( 'Y-m-d' );
-	
-			$movies = MovieHandler::getRandomMovies();
-	
-			if( empty( $movies ) ) {
-				$movies = [ MovieHandler::createMovie( /* $date */ ) ];
+			// validate request
+			$hash = Helpers::stripSpecialChars( $_POST['auth'] ?? '' );
+
+			if( $hash !== $_ENV['ENDPOINT_CREATE_MOVIE_AUTH'] ) {
+				throw new Exception( 'Invalid authorization code.' );
 			}
 
-			$movies = array_map( function( $movie ) {
-				return $movie->package();
-			}, $movies );
+			// OpenAI can take some time to create the image
+			ini_set( 'max_execution_time', 120 );
+
+			$movie = MovieHandler::createMovie();
+			$movie = $movie->package();
 	
 			$this->response = new Response(
 				200,
 				[
-					'movies' => $movies,
+					'movie' => $movie,
 				]
 			);
 
@@ -59,4 +60,3 @@ class GetMovie extends Endpoint
 	}
 
 }
-

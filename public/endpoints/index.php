@@ -15,6 +15,6 @@ if( defined( 'APP_DEBUG' ) && APP_DEBUG ) {
 $app = require_once( __DIR__ . '/../../app/app.php' );
 
 // execute app
-$app->run( 'get_movie' );
+$app->run( str_replace( '/endpoints/', '', $_SERVER['REQUEST_URI'] ) );
 
 exit;

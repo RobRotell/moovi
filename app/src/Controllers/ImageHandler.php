@@ -7,6 +7,7 @@ namespace Moovi\Controllers;
 use finfo;
 use GdImage;
 use InvalidArgumentException;
+use Moovi\Connectors\TinifyApi;
 use RuntimeException;
 
 
@@ -28,9 +29,9 @@ final class ImageHandler
 	 * @param string $url Image URL
 	 * @param string $name File name to save image
 	 * 
-	 * @return string String for local media URL
+	 * @return array Array of file paths for JPG image sizes
 	 */
-	public static function save( string $url, string $name ): string
+	public static function save( string $url, string $name ): array
 	{
 		if( !in_array( parse_url( $url, PHP_URL_HOST ), self::$allowedHosted ) ) {
 			throw new InvalidArgumentException( 'Cannot download an image from an invalid host.' );
@@ -47,7 +48,7 @@ final class ImageHandler
 		
 		$imgFilePath = self::saveAsPng( $imageData, $name );
 		
-		return self::saveAsJpg( $imgFilePath, $name );
+		return self::savePngToJpg( $imgFilePath, $name, true );
 	}
 
 
@@ -63,9 +64,11 @@ final class ImageHandler
 	 */
 	private static function saveAsPng( string $data, string $name ): string
 	{
+		// compress PNG (original images are ~3MB) through Tinify
+		// $data = TinifyApi::compressPng( $data );
+
 		// save PNG in raw image directory
 		$imgFilePath = sprintf( '%s/%s.png', APP_IMG_DIR, $name );
-		
 		file_put_contents( $imgFilePath, $data );
 		chmod( $imgFilePath, 0400 );
 		
@@ -74,18 +77,70 @@ final class ImageHandler
 
 
 	/**
+	 * Save image as JPG to public
+	 *
+	 * @since 0.0.1
+	 * 
+	 * @throws RuntimeException Failed to create GdImage object or failed to save JPG
+	 *
+	 * @param string|GdImage $image If string, file path; otherwise, GdImage
+	 * @param string $name File name
+	 * @param int $targetWidth Desired width of image file
+	 * @param int $targetHeight Desired height of image file
+	 * 
+	 * @return string File path to image
+	 */
+	private static function saveAsJpg( 
+		string|GdImage $image, 
+		string $name, 
+		int $targetWidth = 1024, 
+		int $targetHeight = 1024 
+	): string
+	{
+		// todo -- error handler for passing a non-JPG file
+		if( is_string( $image ) ) {
+			$image = imagecreatefromjpeg( $image );
+		}
+
+		$imageWidth = imagesx( $image );
+		$imageHeight = imagesy( $image );
+
+		$filePath = sprintf( '%s/media/%s-%sx%s.jpg', PUBLIC_SITE_DIR, $name, $targetWidth, $targetHeight );
+
+		// do we need to resize?
+		if( $imageWidth === $targetWidth && $imageHeight === $targetHeight ) {
+			$saved = imagejpeg( $image, $filePath, 75 );
+
+		} else {
+			$copy = imagecreatetruecolor( $targetWidth, $targetHeight );
+			imagecopyresampled( $copy, $image, 0, 0, 0, 0, $targetWidth, $targetHeight, $imageWidth, $imageHeight );
+
+			$saved = imagejpeg( $copy, $filePath, 75 );
+			imagedestroy( $copy );
+		}
+
+		if( !$saved ) {
+			throw new RuntimeException( 
+				sprintf( 'Failed to save JPG version of image (size: %dx%d', $targetWidth, $targetHeight )
+			);
+		}
+		chmod( $filePath, 0644 );
+		
+		return $filePath;
+	}
+
+
+	/**
 	 * Save image as JPG for frontend
 	 *
 	 * @since	0.0.1
 	 * 
-	 * @throws RuntimeException Failed to create GdImage object or failed to save JPG
-	 *
 	 * @param string $rawImageFilePath File path for raw image
 	 * @param string $name File name
 	 * 
-	 * @return string File path to image
+	 * @return array Array of file paths
 	 */
-	public static function saveAsJpg( string $rawImageFilePath, string $name ): string
+	public static function savePngToJpg( string $rawImageFilePath, string $name ): array
 	{
 		// create GD image
 		$imageObj = imagecreatefrompng( $rawImageFilePath );
@@ -93,19 +148,15 @@ final class ImageHandler
 			throw new RuntimeException( 'Failed to create image object of PNG.' );
 		}
 
-		// file path for public-facing image 
-		$publicFilePath = sprintf( '%s/media/%s.jpg', PUBLIC_SITE_DIR, $name );
-
-		// save PNG image as JPG
-		$saved = imagejpeg( $imageObj, $publicFilePath, 75 );
-		if( !$saved ) {
-			throw new RuntimeException( 'Failed to save JPG version of image.' );
-		}
-		chmod( $publicFilePath, 0644 );
+		$filePaths = [
+			'1024x1024' => self::saveAsJpg( $imageObj, $name, 1024, 1024 ),
+			'768x768' => self::saveAsJpg( $imageObj, $name, 768, 768 ),
+			'480x480' => self::saveAsJpg( $imageObj, $name, 480, 480 ),
+		];
 
 		imagedestroy( $imageObj );
-		
-		return $publicFilePath;		
+
+		return $filePaths;
 	}
 
 }
