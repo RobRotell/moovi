@@ -11,7 +11,9 @@ export default () => ({
 
 
 	data: {
+		endpointUrl: 'https://moovi.robr.app/endpoints/get-movie',
 		movie: {
+			id: null,
 			title: '',
 			tagline: '',
 			genre: '',
@@ -60,8 +62,15 @@ export default () => ({
 	 * @return {Promise}
 	 */
 	fetchMovie() {
+		const endpointUrl = new URL( this.data.endpointUrl )
+
+		// avoid showing the same movie twice
+		if ( this.data.movie.id && !Number.isNaN( this.data.movie.id ) ) {
+			endpointUrl.searchParams.set( 'exclude', this.data.movie.id )
+		}
+
 		return new Promise( ( resolve, reject ) => {
-			fetch( 'https://moovi.robr.app/endpoints/get-movie' )
+			fetch( endpointUrl.toString() )
 				.then( res => {
 					if ( !res.ok && 200 !== res.status ) {
 						throw new Error( 'Invalid response from server.' )
