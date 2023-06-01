@@ -6,7 +6,7 @@
 		"lint": "eslint",
 		"clean:output": "rimraf ../public/index.html ../public/index.*.css && ../public/index.*.css.map ../public/index.*.js ../public/index.*.js.map",
 		"build": "parcel build src/index.html",
-		"watch": "parcel src/index.html --port 61396 --hmr-port 61396"
+		"dev": "parcel src/index.html --port 61396 --hmr-port 61396"
 	},
 	"repository": {
 		"type": "git",

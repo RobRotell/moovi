@@ -14,7 +14,14 @@ if( defined( 'APP_DEBUG' ) && APP_DEBUG ) {
 // load Moovi app, including endpoints
 $app = require_once( __DIR__ . '/../../app/app.php' );
 
+
 // execute app
-$app->run( str_replace( '/endpoints/', '', $_SERVER['REQUEST_URI'] ) );
+$app->run( 
+	str_replace( 
+		'/endpoints/', 
+		'', 
+		parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ) 
+	) 
+);
 
 exit;

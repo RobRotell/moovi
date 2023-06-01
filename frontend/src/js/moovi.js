@@ -22,6 +22,7 @@ export default () => ({
 			image: {},
 		},
 		error: '',
+		IdsToExclude: [],
 	},
 
 
@@ -41,18 +42,28 @@ export default () => ({
 	 * @return {self}
 	 */
 	refreshMovie() {
+		if ( this.states.isLoading ) {
+			return
+		}
+
 		this.showErrorMsg()
 		this.states.isLoading = true
 
-		this.fetchMovie().then( movie => {
-			this.data.movie = movie
+		// API is really darn fast; let's give a small delay to avoid jumping content
+		setTimeout( () => {
+			this.fetchMovie().then( movie => {
+				this.data.movie = movie
+				this.queueIdToExclude( movie.id )
 
-		}).catch( err => {
-			this.showErrorMsg( err.message )
+			}).catch( err => {
+				this.showErrorMsg( err.message )
 
-		}).finally( () => {
-			this.states.isLoading = false
-		})
+			}).finally( () => {
+				this.$nextTick().then( () => {
+					this.states.isLoading = false
+				})
+			})
+		}, 500 )
 	},
 
 
@@ -65,9 +76,11 @@ export default () => ({
 		const endpointUrl = new URL( this.data.endpointUrl )
 
 		// avoid showing the same movie twice
-		if ( this.data.movie.id && !Number.isNaN( this.data.movie.id ) ) {
-			endpointUrl.searchParams.set( 'exclude', this.data.movie.id )
+		if ( this.data.IdsToExclude.length ) {
+			endpointUrl.searchParams.set( 'exclude', this.data.IdsToExclude )
 		}
+
+		console.log( this.data.IdsToExclude )
 
 		return new Promise( ( resolve, reject ) => {
 			fetch( endpointUrl.toString() )
@@ -90,6 +103,21 @@ export default () => ({
 					reject( new Error( 'Ran into an error. Please refresh the page!' ) )
 				})
 		})
+	},
+
+
+	/**
+	 * Improve movie randomness by excluding past 10 movies through endpoint
+	 *
+	 * @param {int} id Movie ID
+	 * @return {self}
+	 */
+	queueIdToExclude( id ) {
+		if ( 10 <= this.data.IdsToExclude.length ) {
+			this.data.IdsToExclude.shift()
+		}
+
+		this.data.IdsToExclude.push( id )
 	},
 
 

@@ -29,14 +29,49 @@ body {
 .header {
 	position: sticky;
 	top: 0;
+	display: flex;
+	place-content: center;
+	place-items: center;
 	height: 64px;
-}
+	padding-left: 36px;
+	padding-right: 36px;
+	backdrop-filter: blur( 10px ) grayscale( 100% );
+	z-index: 1000;
 
-.app {
-	--red: #FA6345;
-	--blue: #E6F5FF;
-	--green: #D1E8D9;
-	--brown: #E8E0D1;
+	@media( width >= 600px ) {
+		place-content: flex-start;
+	}
+
+	&__logo {
+		display: block;
+		width: 140px;
+
+		&__svg {
+			width: 100%;
+			height: auto;
+
+			&__reel {
+				fill: #CC7750;
+				transform-box: fill-box;
+				transform-origin: center;
+				animation: periodicSpin 8s linear infinite;
+
+				@keyframes periodicSpin {
+					0% {
+						transform: rotatez( 0 );
+					}
+
+					90% {
+						transform: rotatez( 0 );
+					}
+
+					100% {
+						transform: rotatez( 360deg );
+					}
+				}
+			}
+		}
+	}
 }
 
 .app {
@@ -44,6 +79,40 @@ body {
 	padding-top: 36px;
 	padding-bottom: 36px;
 	place-content: center;
+}
+
+.loading-screen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	display: flex;
+	place-items: center;
+	place-content: center;
+	gap: 24px;
+	width: 100%;
+	height: 100%;
+	background-color: #111;
+	z-index: 500;
+
+	&__icon {
+		max-width: 30%;
+
+		&__reel {
+			transform-box: fill-box;
+			transform-origin: center;
+			animation: continuousSpin 2s linear infinite;
+
+			@keyframes continuousSpin {
+				0% {
+					transform: rotatez( 0 );
+				}
+
+				100% {
+					transform: rotatez( 360deg );
+				}
+			}
+		}
+	}
 }
 
 .movie {
@@ -139,6 +208,7 @@ body {
 	gap: 16px;
 	right: 16px;
 	bottom: 0;
+	z-index: 1000;
 
 	&__link {
 		display: flex;
