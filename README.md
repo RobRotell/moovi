@@ -1,2 +1,26 @@
-# moovi
-OpenAI-powered movie site
+# Moovi
+
+This is a [simple site](https://moovi.robr.app) that I put together to practice using OpenAI's API and PHP SDK. Right now, there are two components:
+- **frontend**
+	- request and display random movie from pre-saved movies (see below)
+	- using AlpineJS to power frontend
+- **backend**
+	- get movie
+		- URL: https://moovi.robr.app/endpoints/get-movie
+		- accepts two parameters:
+			- limit (default: 1)
+				- number of movies to fetch
+				- can be between one and five
+			- exclude (default: null)
+				- IDs of movies to exclude 
+				- this can help perceived randomness of movie results by preventing the same set of movies from being returned in subsequent requests
+	- create movie
+		- URL: https://moovi.robr.app/endpoints/create-movie
+			- requires special authorization code (I ain't tellin')
+		- app will:
+			- create prompt from a dataset of characters, plots, and genres
+			- request title, tagline, and production shot of movie based on prompt
+		- since OpenAI takes around 20-30 seconds to generate assets for a movie, I'm using a cronjob for the app to create a new movie every three hours
+			- I'll probably scale this back to one movie a day once I have a large enough dataset
+
+May this app provide you some amusement and nightmare fuel!
