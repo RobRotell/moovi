@@ -28,7 +28,7 @@ final class Prompts
 		return [
 			'title' 	=> sprintf( 'Create a %s movie title between three and seven words for a %s movie about %s', $style, $genre, $scenario ),
 			'tagline' 	=> sprintf( 'Create a %s movie tagline for an %s movie about %s', $style, $genre, $scenario ),
-			'poster' 	=> sprintf( 'Create a %s still image for a %s movie about %s', $style, $genre, $scenario ),
+			'poster' 	=> sprintf( '%s image for a %s movie about %s', $style, $genre, $scenario ),
 			'__meta'	=> [
 				'genre' 	=> $genre,
 				'scenario'	=> $scenario,

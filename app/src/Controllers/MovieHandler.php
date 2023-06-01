@@ -11,7 +11,7 @@ use Moovi\Datasets\Nationalities;
 use Moovi\Helpers;
 use Moovi\Models\Movie;
 use PDO;
-
+use Throwable;
 
 class MovieHandler
 {
@@ -25,34 +25,34 @@ class MovieHandler
 	 * @param string $date Date in Y-m-d format
 	 * @return array Movies matching date
 	 */
-	public static function getMoviesByDate( string $date ): array
-	{
-		$movies = [];
+	// public static function getMoviesByDate( string $date ): array
+	// {
+	// 	$movies = [];
 
-		if( !Helpers::validateDate( $date, 'Y-m-d' ) ) {
-			throw new InvalidArgumentException( 'Argument must be a valid date in a "Y-m-d" format.' );
-		}
+	// 	if( !Helpers::validateDate( $date, 'Y-m-d' ) ) {
+	// 		throw new InvalidArgumentException( 'Argument must be a valid date in a "Y-m-d" format.' );
+	// 	}
 
-		// todo -- target specific columns?
-		$pdo = Database::getPdo();
+	// 	// todo -- target specific columns?
+	// 	$pdo = Database::getPdo();
 
-		$sql = $pdo->prepare( 'SELECT * FROM movies WHERE `date` = :date' );
-		$sql->execute(
-			[
-				'date' => $date
-			]
-		);
+	// 	$sql = $pdo->prepare( 'SELECT * FROM movies WHERE `date` = :date' );
+	// 	$sql->execute(
+	// 		[
+	// 			'date' => $date
+	// 		]
+	// 	);
 
-		$results = $sql->fetchAll();
+	// 	$results = $sql->fetchAll();
 
-		if( $results ) {
-			foreach( $results as $attrs ) {
-				$movies[] = Movie::createFromAttrs( (array)$attrs );
-			}
-		}
+	// 	if( $results ) {
+	// 		foreach( $results as $attrs ) {
+	// 			$movies[] = Movie::createFromAttrs( (array)$attrs );
+	// 		}
+	// 	}
 
-		return $movies;
-	}
+	// 	return $movies;
+	// }
 
 	
 	/**
@@ -60,31 +60,47 @@ class MovieHandler
 	 *
 	 * @since 0.0.1
 	 *
+	 * @param int $limit Number of movies to return
+	 * @param int|array|null $idsToExclude ID or array of IDs of movies to exclude
 	 * @return array Random movies
 	 */
-	public static function getRandomMovies( int $limit = 1 ): array
+	public static function getRandomMovies( int $limit = 1, int|array|null $idsToExclude = null ): array
 	{
 		$movies = [];
-
+		
 		// should be one or more
 		$limit = abs( $limit ) ?: 1;
+		
+		// get array (optionally of integers) regardless of input
+		$idsToExclude = Helpers::convertToIntArray( $idsToExclude );
 
-		// todo -- target specific columns?
+		$baseSql = 'SELECT id FROM movies';
+		
+		// need to manually add IDs to exclude
+		if( !empty( $idsToExclude ) ) {
+			$baseSql .= sprintf( 
+				' WHERE id 
+				NOT IN (%s)',
+				implode( ',', array_map( fn( $id ) => sprintf( "'%s'", $id ), $idsToExclude ) )
+			);
+		}
+		
+		// now, add limit
+		$baseSql .= ' ORDER BY RAND() LIMIT :limit';
+
+		// now, let's make the query
 		$pdo = Database::getPdo();
 
-		$sql = $pdo->prepare( 
-			'SELECT * FROM movies ORDER BY RAND() LIMIT :limit' 
-		);
+		$sql = $pdo->prepare( $baseSql );
 
-		// limit requires an integer so we need to use bindParam instead of execute
 		$sql->bindParam( ':limit', $limit, PDO::PARAM_INT );
 		$sql->execute();
 
 		$results = $sql->fetchAll();
 
 		if( $results ) {
-			foreach( $results as $attrs ) {
-				$movies[] = Movie::createFromAttrs( (array)$attrs );
+			foreach( $results as $result ) {
+				$movies[] = new Movie( $result->id );
 			}
 		}
 
@@ -171,7 +187,7 @@ class MovieHandler
 			throw new Exception( 'Failed to save movie.' );
 		}
 
-		return Movie::createFromId( $result->id );
+		return new Movie( $result->id );
 	}
 
 }

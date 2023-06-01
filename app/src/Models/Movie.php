@@ -26,11 +26,75 @@ class Movie
 
 
 	/**
+	 * Create movie object
+	 *
+	 * @since 0.0.2
+	 * 
+	 * @throws InvalidArgumentException Missing required properties
+	 *
+	 * @param int $id Movie ID
+	 */
+	public function __construct( int $id ) 
+	{
+		$id = abs( $id );
+
+		$pdo = Database::getPdo();
+		$sql = $pdo->prepare( 'SELECT * FROM movies WHERE `id` = :id LIMIT 1' );
+		$sql->execute(
+			[
+				'id' => $id,
+			]
+		);
+
+		$result = $sql->fetch();
+
+		if( empty( $result ) ) {
+			throw new InvalidArgumentException(
+				sprintf( 'Invalid movie ID: "%s"', $id )
+			);
+		}
+
+		$this->id 				= $result->id;
+		$this->title 			= Helpers::stripLeadingTrailingQuotationMarks( $result->title );
+		$this->tagline 			= Helpers::stripLeadingTrailingQuotationMarks( $result->tagline );
+		$this->director 		= $result->director;
+		$this->genre 			= $result->genre;
+		$this->releaseYear		= $result->release_year;
+		$this->date 			= $result->date;
+		$this->imageUrls 		= json_decode( $result->image_urls, true );
+		$this->prompts 			= json_decode( $result->prompts, true );
+	}
+
+
+	/**
+	 * Package movie data for frontend
+	 *
+	 * @since 0.0.1
+	 *
+	 * @return array
+	 */
+	public function package(): array
+	{
+		return [
+			'id'		=> $this->id,
+			'title' 	=> $this->title,
+			'tagline' 	=> $this->tagline,
+			'director' 	=> $this->director,
+			'genre'		=> $this->genre,
+			'year' 		=> $this->releaseYear,
+			'image' 	=> $this->imageUrls,
+		];
+	}	
+
+
+	/**
 	 * Factory method to create new movie object from provided attributes
 	 *
 	 * @since 0.0.1
 	 * 
 	 * @throws InvalidArgumentException Missing required properties
+	 * 
+	 * @deprecated Use constructor instead
 	 *
 	 * @param array $movie Movie attributes
 	 * @return Movie
@@ -76,6 +140,8 @@ class Movie
 	 * @since 0.0.1
 	 * 
 	 * @throws InvalidArgumentException Missing required properties
+	 * 
+	 * @deprecated Use constructor instead
 	 *
 	 * @param int $id Movie ID
 	 * @return Movie
@@ -115,26 +181,6 @@ class Movie
 
 		return $movie;
 	}	
-
-
-	/**
-	 * Package movie data for frontend
-	 *
-	 * @since 0.0.1
-	 *
-	 * @return array
-	 */
-	public function package(): array
-	{
-		return [
-			'title' 	=> $this->title,
-			'tagline' 	=> $this->tagline,
-			'director' 	=> $this->director,
-			'genre'		=> $this->genre,
-			'year' 		=> $this->releaseYear,
-			'image' 	=> $this->imageUrls,
-		];
-	}
 
 }
 

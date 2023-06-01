@@ -96,4 +96,30 @@ class Helpers
 	{
 		return preg_replace( '/[^A-Za-z0-9]/', '', $input );
 	}
+
+
+	/**
+	 * Convert a value to an array of non-zero integers
+	 *
+	 * @since 0.0.1
+	 *
+	 * @param mixed $input
+	 * @return array
+	 */
+	public static function convertToIntArray( mixed $input = '' ): array
+	{
+		if( empty( $input ) ) {
+			return [];
+		}
+
+		if( is_string( $input ) ) {
+			$input = explode( ',', $input );
+		}
+
+		$input = (array)$input;
+
+		return array_filter( array_map( function( $value ) {
+			return is_numeric( $value ) ? abs( $value ) : false;
+		}, $input ) );
+	}
 }
