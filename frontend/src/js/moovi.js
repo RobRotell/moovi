@@ -52,6 +52,10 @@ export default () => ({
 		// API is really darn fast; let's give a small delay to avoid jumping content
 		setTimeout( () => {
 			this.fetchMovie().then( movie => {
+
+				// clear out movie so it doesn't "shimmer"
+				this.data.movie.image = {}
+
 				this.data.movie = movie
 				this.queueIdToExclude( movie.id )
 
@@ -63,7 +67,7 @@ export default () => ({
 					this.states.isLoading = false
 				})
 			})
-		}, 500 )
+		}, 250 )
 	},
 
 
@@ -79,8 +83,6 @@ export default () => ({
 		if ( this.data.IdsToExclude.length ) {
 			endpointUrl.searchParams.set( 'exclude', this.data.IdsToExclude )
 		}
-
-		console.log( this.data.IdsToExclude )
 
 		return new Promise( ( resolve, reject ) => {
 			fetch( endpointUrl.toString() )
@@ -123,6 +125,8 @@ export default () => ({
 
 	/**
 	 * Show error message
+	 * 
+	 * @todo Add error HTML
 	 *
 	 * @param {string} msg Error message
 	 * @return {self}
