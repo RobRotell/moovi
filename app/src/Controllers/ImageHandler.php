@@ -8,6 +8,7 @@ use finfo;
 use GdImage;
 use InvalidArgumentException;
 use Moovi\Connectors\TinifyApi;
+use OpenAI\Resources\Files;
 use RuntimeException;
 
 
@@ -70,7 +71,7 @@ final class ImageHandler
 		// save PNG in raw image directory
 		$imgFilePath = sprintf( '%s/%s.png', APP_IMG_DIR, $name );
 		file_put_contents( $imgFilePath, $data );
-		chmod( $imgFilePath, 0400 );
+		chmod( $imgFilePath, 0644 );
 		
 		return $imgFilePath;
 	}
@@ -125,6 +126,12 @@ final class ImageHandler
 			);
 		}
 		chmod( $filePath, 0644 );
+
+		// create WebP variant
+		self::createWebpVariant( $copy ?? $image, $name, $targetWidth, $targetHeight, filesize( $filePath ) );
+
+		// create AVIF variant
+		self::createAvifVariant( $copy ?? $image, $name, $targetWidth, $targetHeight, filesize( $filePath ) );
 		
 		return $filePath;
 	}
@@ -158,6 +165,84 @@ final class ImageHandler
 
 		return $filePaths;
 	}
+
+
+	/**
+	 * Create WebP variant of image. 
+	 * 
+	 * If WebP version is larger than original, then delete WebP variant.
+	 *
+	 * @since 0.0.2
+	 *
+	 * @param GdImage $image Original image
+	 * @param string $name Image name
+	 * @param int $width Image width (for image filename)
+	 * @param int $height Image height (for image filename)
+	 * @param int $origFileSize File size of original image
+	 * 
+	 * @return string Variant file path
+	 */
+	private static function createWebpVariant( 
+		GdImage $image, 
+		string $name, 
+		int $width, 
+		int $height, 
+		int $origFileSize 
+	): string
+	{
+		$variantFilePath = sprintf( '%s/media/%s-%sx%s.webp', PUBLIC_SITE_DIR, $name, $width, $height );
+
+		imagewebp( $image, $variantFilePath, 75 );
+
+		$variantFileSize = filesize( $variantFilePath );
+
+		if( $variantFileSize >= $origFileSize ) {
+			unlink( $variantFilePath );
+		}
+
+		chmod( $variantFilePath, 0644 );
+
+		return $variantFilePath;
+	}
+
+
+	/**
+	 * Create AVIF variant of image. 
+	 * 
+	 * If AVIF version is larger than original, then delete AVIF variant.
+	 *
+	 * @since 0.0.2
+	 *
+	 * @param GdImage $image Original image
+	 * @param string $name Image name
+	 * @param int $width Image width (for image filename)
+	 * @param int $height Image height (for image filename)
+	 * @param int $origFileSize File size of original image
+	 * 
+	 * @return string Variant file path
+	 */
+	private static function createAvifVariant( 
+		GdImage $image, 
+		string $name, 
+		int $width, 
+		int $height, 
+		int $origFileSize 
+	): string
+	{
+		$variantFilePath = sprintf( '%s/media/%s-%sx%s.avif', PUBLIC_SITE_DIR, $name, $width, $height );
+
+		imageavif( $image, $variantFilePath, 75, 0 );
+
+		$variantFileSize = filesize( $variantFilePath );
+
+		if( $variantFileSize >= $origFileSize ) {
+			unlink( $variantFilePath );
+		}
+
+		chmod( $variantFilePath, 0644 );
+
+		return $variantFilePath;
+	}	
 
 }
 

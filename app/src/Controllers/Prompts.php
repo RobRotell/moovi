@@ -6,6 +6,7 @@ namespace Moovi\Controllers;
 
 use Moovi\Datasets\Characters;
 use Moovi\Datasets\Genres;
+use Moovi\Datasets\Nationalities;
 use Moovi\Datasets\Plots;
 use Moovi\Datasets\Styles;
 
@@ -21,18 +22,19 @@ final class Prompts
 	 */
 	public static function createPrompts(): array
 	{
-		$genre 		= strtolower( Genres::getRandomValue() );
-		$scenario 	= strtolower( self::createScenario() );
-		$style 		= strtolower( Styles::getSkewedRandomValue( 'realistic', 5 ) );
+		$genre = strtolower( Genres::getRandomValue() );
+		$scenario = strtolower( self::createScenario() );
+		$style = strtolower( Styles::getSkewedRandomValue( 'realistic', 5 ) );
 
 		return [
-			'title' 	=> sprintf( 'Create a %s movie title between three and seven words for a %s movie about %s', $style, $genre, $scenario ),
-			'tagline' 	=> sprintf( 'Create a %s movie tagline for an %s movie about %s', $style, $genre, $scenario ),
-			'poster' 	=> sprintf( '%s image for a %s movie about %s', $style, $genre, $scenario ),
-			'__meta'	=> [
-				'genre' 	=> $genre,
-				'scenario'	=> $scenario,
-				'style'		=> $style,
+			'title' => sprintf( 'Create a %s movie title between three and seven words for a %s movie about %s', $style, $genre, $scenario ),
+			'tagline' => sprintf( 'Create a %s movie tagline for an %s movie about %s', $style, $genre, $scenario ),
+			'poster' => sprintf( '%s image for a %s movie about %s', $style, $genre, $scenario ),
+			'director' => sprintf( 'Create a %s name between two and four words.', Nationalities::getSkewedRandomValue( 'American', 200 ) ),
+			'__meta' => [
+				'genre' => $genre,
+				'scenario' => $scenario,
+				'style' => $style,
 			]
 		];
 	}

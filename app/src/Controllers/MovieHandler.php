@@ -13,6 +13,7 @@ use Moovi\Models\Movie;
 use PDO;
 use Throwable;
 
+
 class MovieHandler
 {
 	/**
@@ -121,6 +122,9 @@ class MovieHandler
 	 */
 	public static function createMovie( string $date = null ): Movie
 	{
+		// getting image, and then processing images, can take a good bit of time
+		set_time_limit( 300 );
+
 		if( !empty( $date ) && !Helpers::validateDate( $date, 'Y-m-d' ) ) {
 			throw new InvalidArgumentException( 'Argument must be a valid date in a "Y-m-d" format.' );
 		} else {
@@ -129,10 +133,10 @@ class MovieHandler
 
 		$prompts = Prompts::createPrompts();
 
-		$title 		= AiApi::completePrompt( $prompts['title'] );
-		$tagline	= AiApi::completePrompt( $prompts['tagline'] );
-		$poster 	= AiApi::generateImage( $prompts['poster'] );
-		$director 	= AiApi::completePrompt( sprintf( 'Create a %s name between two and four words.', Nationalities::getSkewedRandomValue( 'American', 200 ) ) );
+		$title = AiApi::completePrompt( $prompts['title'] );
+		$tagline = AiApi::completePrompt( $prompts['tagline'] );
+		$poster = AiApi::generateImage( $prompts['poster'] );
+		$director = AiApi::completePrompt( $prompts['director'] );
 
 		// remove leading and trailing quotation marks that OpenAI sometimes add
 		$title = Helpers::stripLeadingTrailingQuotationMarks( $title );
