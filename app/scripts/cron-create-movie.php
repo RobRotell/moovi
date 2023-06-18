@@ -1,12 +1,14 @@
 <?php
 
-require_once( __DIR__ . '/vendor/autoload.php' );
+$appDir = dirname( dirname( __FILE__ ) );
+
+require_once( $appDir . '/vendor/autoload.php' );
 
 // get endpoint authorization code
-$dotenv = \Dotenv\Dotenv::createImmutable( __DIR__ . '/config' );
+$dotenv = \Dotenv\Dotenv::createImmutable( $appDir . '/config' );
 $dotenv->load();
 
-$curl = curl_init( 'https://moovi.robr.app/endpoints/create-movie' );
+$curl = curl_init( 'https://api.moovi.robr.app/create-movie' );
 
 curl_setopt( 
    $curl, 

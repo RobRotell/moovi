@@ -35,7 +35,7 @@ final class MooviApp
 		define( 'APP_IMG_DIR', APP_DIR . '/img' );
 
 		define( 'PUBLIC_SITE_DIR', dirname( APP_DIR ) . '/public' );
-		define( 'PUBLIC_SITE_URL', 'https://moovi.robr.app' );
+		define( 'PUBLIC_SITE_URL', 'https://api.moovi.robr.app' );
 	}
 
 

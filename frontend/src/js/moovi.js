@@ -11,7 +11,7 @@ export default () => ({
 
 
 	data: {
-		endpointUrl: 'https://moovi.robr.app/endpoints/get-movie',
+		endpointUrl: 'https://api.moovi.robr.app/get-movie',
 		movie: {
 			id: null,
 			title: '',
