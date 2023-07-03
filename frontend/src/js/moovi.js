@@ -49,15 +49,18 @@ export default () => ({
 		this.showErrorMsg()
 		this.states.isLoading = true
 
-		// API is really darn fast; let's give a small delay to avoid jumping content
+		// API is so pretty darn fast; give it a "false" loading time to make it more seamless
 		setTimeout( () => {
-			this.fetchMovie().then( movie => {
+			this.fetchMovie().then( async movie => {
 
 				// clear out movie so it doesn't "shimmer"
 				this.data.movie.image = {}
 
 				this.data.movie = movie
 				this.queueIdToExclude( movie.id )
+
+				// wait until new poster image has loaded before removing loading layer
+				await this.imageHasLoaded()
 
 			}).catch( err => {
 				this.showErrorMsg( err.message )
@@ -68,6 +71,29 @@ export default () => ({
 				})
 			})
 		}, 250 )
+	},
+
+
+	/**
+	 * Wait until poster image has finished loading
+	 *
+	 * @return {Promise}
+	 */
+	imageHasLoaded() {
+		return new Promise( resolve => {
+			let image
+
+			// backwards compatibility
+			if ( this.$refs.posterImageSimple ) {
+				image = this.$refs.posterImageSimple
+			} else {
+				image = this.$refs.posterImage
+			}
+
+			image.addEventListener( 'load', resolve, {
+				once: true,
+			})
+		})
 	},
 
 
@@ -115,7 +141,7 @@ export default () => ({
 	 * @return {self}
 	 */
 	queueIdToExclude( id ) {
-		if ( 10 <= this.data.IdsToExclude.length ) {
+		if ( 35 <= this.data.IdsToExclude.length ) {
 			this.data.IdsToExclude.shift()
 		}
 
@@ -125,7 +151,7 @@ export default () => ({
 
 	/**
 	 * Show error message
-	 * 
+	 *
 	 * @todo Add error HTML
 	 *
 	 * @param {string} msg Error message
