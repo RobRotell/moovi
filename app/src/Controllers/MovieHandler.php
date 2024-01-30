@@ -17,43 +17,27 @@ use Throwable;
 class MovieHandler
 {
 	/**
-	 * Get movie by date
+	 * Get all movies
 	 *
-	 * @since 0.0.1
-	 * 
-	 * @throws InvalidArgumentException Invalid date format
+	 * @since	0.0.2
 	 *
-	 * @param string $date Date in Y-m-d format
-	 * @return array Movies matching date
+	 * @return array All movies
 	 */
-	// public static function getMoviesByDate( string $date ): array
-	// {
-	// 	$movies = [];
+	public static function getAllMovies(): array
+	{
+		$movies = [];
 
-	// 	if( !Helpers::validateDate( $date, 'Y-m-d' ) ) {
-	// 		throw new InvalidArgumentException( 'Argument must be a valid date in a "Y-m-d" format.' );
-	// 	}
+		$pdo = Database::getPdo();
+		$sql = $pdo->query( 'SELECT id FROM movies' );
 
-	// 	// todo -- target specific columns?
-	// 	$pdo = Database::getPdo();
+		$results = $sql->fetchAll();
 
-	// 	$sql = $pdo->prepare( 'SELECT * FROM movies WHERE `date` = :date' );
-	// 	$sql->execute(
-	// 		[
-	// 			'date' => $date
-	// 		]
-	// 	);
+		foreach( $results as $result ) {
+			$movies[] = new Movie( $result->id );
+		}
 
-	// 	$results = $sql->fetchAll();
-
-	// 	if( $results ) {
-	// 		foreach( $results as $attrs ) {
-	// 			$movies[] = Movie::createFromAttrs( (array)$attrs );
-	// 		}
-	// 	}
-
-	// 	return $movies;
-	// }
+		return $movies;
+	}
 
 	
 	/**
