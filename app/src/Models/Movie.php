@@ -75,6 +75,14 @@ class Movie
 	 */
 	public function package(): array
 	{
+		// fix for GenFlix project
+		$imageUrl = null;
+		if( 1 === count( $this->imageUrls ) ) {
+			$imageUrl = $this->imageUrls[0];
+		} else {
+			$imageUrl = $this->imageUrls['1024x1024'];
+		}
+
 		return [
 			'id'		=> $this->id,
 			'title' 	=> $this->title,
@@ -83,6 +91,7 @@ class Movie
 			'genre'		=> $this->genre,
 			'year' 		=> $this->releaseYear,
 			'image' 	=> $this->imageUrls,
+			'imageUrl'	=> $imageUrl,
 		];
 	}	
 
