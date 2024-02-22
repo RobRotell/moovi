@@ -47,5 +47,9 @@
 		"eslint-plugin-import": "^2.27.5",
 		"parcel": "^2.9.0",
 		"rimraf": "^3.0.2"
-	}
+	},
+	"browserslist": [
+		"> 1%",
+		"not dead"
+	]	
 }
